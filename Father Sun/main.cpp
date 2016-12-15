@@ -9,7 +9,9 @@
 #include <thread> 
 #include  <map>
 #include "crow_all.h"
+#include <boost/optional.hpp>
 
+using Fibonacci_numbers = std::map<int, int64_t>;
 
 /*
  * Fmt - biblioteka do formatownia napsiów
@@ -22,6 +24,26 @@ int64_t FibonacciRek(int n)
 		return n;
 	else
 		return FibonacciRek(n - 1) + FibonacciRek((n - 2));
+}
+
+
+boost::optional<int64_t> find_fibonacci_number(std::map<int,int64_t>& t_numbers, int n)
+{
+	std::pair<int, int64_t> p;
+	auto it =  std::find_if(t_numbers.begin(),t_numbers.end(),[&n](auto &pair)
+	{
+		return (pair.first == n);
+				
+	});
+
+	if(it == t_numbers.end())
+	{
+		return{};
+	}
+	else
+	{
+		return it->second;
+	}
 }
 
 
@@ -42,6 +64,15 @@ int64_t FibonaciIter(int n)
 }
 
 
+std::string get_all_numbers(const Fibonacci_numbers& map)
+{
+	std::string all_numbers;
+	for(const auto& number: map)
+	{
+		all_numbers += fmt::format("{}" ,number.second);
+	}
+	return all_numbers;
+}
 
 int main()
 {
@@ -74,17 +105,30 @@ int main()
 			sebonacci_numbers[n] = FibonaciIter(n);
 			return crow::response(200);
 		}
+		else if(req.method == "GET"_method)
+		{
+			auto list_all = get_all_numbers(sebonacci_numbers);
+			return crow::response(200, list_all);
+		}
 		else
 		{
-			return crow::response(200);
+			return crow::response(404);
 		}
 		//return "";
 	});
 
 	CROW_ROUTE(app, "fibo_numbers/<int>")(
-		[](int n)
+		[&sebonacci_numbers](int n)
 	{
-		return "";
+		//if(sebonacci_numbers.find())
+		auto number = find_fibonacci_number(sebonacci_numbers,n);
+			if(number)
+			{
+				auto response = fmt::format("{}", number.get());
+				return crow::response(200, response);
+			}
+			else
+				return crow::response(404);
 	});
 
 

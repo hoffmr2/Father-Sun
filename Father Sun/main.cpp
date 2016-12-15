@@ -1,7 +1,12 @@
 
 
+#define _CRT_SECURE_NO_WARNINGS
+#define _SCL_SECURE_NO_WARNINGS
+
 //#include  <fmt/format.h>
 #include <spdlog/spdlog.h>
+#include "crow_all.h"
+
 
 /*
  * Fmt - biblioteka do formatownia napsiów
@@ -46,7 +51,17 @@ int main()
 	logger->debug("mówimy o c++");
 	logger->error("Coœ sie popsu³o");
 	logger->info("Fibonnaci Number: {}", FibonaciIter((3)));
+	logger->info("Fibonnaci Number: {}", FibonaciIter((9)));
 
+	crow::SimpleApp app;
 
+	CROW_ROUTE(app,"/hellow")(
+		[]() 
+	{
+		return FibonaciIter(5);
+	}
+	);//wyrazenie lambda
+
+	app.port(8080).multithreaded().run();
 	return 0;
 }

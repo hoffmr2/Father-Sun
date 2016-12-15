@@ -5,6 +5,9 @@
 
 //#include  <fmt/format.h>
 #include <spdlog/spdlog.h>
+#include <chrono>
+#include <thread> 
+#include  <map>
 #include "crow_all.h"
 
 
@@ -24,6 +27,7 @@ int64_t FibonacciRek(int n)
 
 int64_t FibonaciIter(int n)
 {
+	using namespace std::chrono_literals;
 	int64_t f0 = 0;
 	int64_t f1 = 1, f2=0;
 
@@ -33,6 +37,7 @@ int64_t FibonaciIter(int n)
 		f0 = f1;
 		f1 = f2;
 	}
+	std::this_thread::sleep_for(2s);
 	return f2;
 }
 
@@ -55,6 +60,35 @@ int main()
 
 	crow::SimpleApp app;
 
+	std::map<int, int64_t> sebonacci_numbers;
+
+	//GET
+	CROW_ROUTE(app, "/fibo_numbers").methods("POST"_method)(
+		[&logger,&sebonacci_numbers](const crow::request& req )
+	{
+		if(req.method == "POST"_method)
+		{
+			logger->debug("Cia³o Wiadomosci {}", req.body);
+			int n = std::stoi(req.body);
+			//req.body
+			sebonacci_numbers[n] = FibonaciIter(n);
+			return crow::response(200);
+		}
+		else
+		{
+			return crow::response(200);
+		}
+		//return "";
+	});
+
+	CROW_ROUTE(app, "fibo_numbers/<int>")(
+		[](int n)
+	{
+		return "";
+	});
+
+
+	/*
 	CROW_ROUTE(app,"/hellow")(
 		[]() 
 	{
@@ -68,7 +102,7 @@ int main()
 		return fmt::format("{}", FibonaciIter(n));
 	}
 	);
-
+*/
 	app.port(8080).multithreaded().run();
 	return 0;
 }

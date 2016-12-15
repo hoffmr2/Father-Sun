@@ -62,6 +62,13 @@ int main()
 	}
 	);//wyrazenie lambda
 
+	CROW_ROUTE(app, "/hellow/<int>")(
+		[](int n)
+	{
+		return fmt::format("{}", FibonaciIter(n));
+	}
+	);
+
 	app.port(8080).multithreaded().run();
 	return 0;
 }
